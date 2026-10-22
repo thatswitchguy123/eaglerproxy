@@ -3,7 +3,7 @@
     "module": "nodenext",
     "esModuleInterop": true,
     "target": "ESNext",
-    "moduleResolution": "nodenext",
+    "moduleResolution": "node",
     "sourceMap": false,
     "outDir": "build",
     "resolveJsonModule": true,
