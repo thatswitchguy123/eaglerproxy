@@ -1,6 +1,7 @@
 run = "chmod u+x ./replit_launch.sh && ./replit_launch.sh"
 hidden = [".build", ".config"]
 compile = "chmod u+x ./.config/build.sh && ./.config/build.sh"
+modules = ["nodejs-20", "bash", "nix"]
 
 [packager]
 language = "nodejs"
@@ -11,7 +12,7 @@ packageSearch = true
 guessImports = true
 
 [nix]
-channel = "stable-22_11"
+channel = "stable-25_05"
 
 [gitHubImport]
 requiredFiles = [".replit", "replit.nix", ".config"]
