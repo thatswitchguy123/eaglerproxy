@@ -21,7 +21,7 @@ export class SkinServer {
   public usingNative: boolean;
   public usingCache: boolean;
   private _logger: Logger;
-  private deleteTask: NodeJS.Timer;
+  private deleteTask: NodeJS.Timeout;
   private lifetime: number;
 
   constructor(proxy: Proxy, native: boolean, sweepInterval: number, cacheLifetime: number, cacheFolder: string = "./skinCache", useCache: boolean = true, allowedSkinDomains?: string[]) {

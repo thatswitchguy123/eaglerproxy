@@ -5,7 +5,7 @@ export default class BucketRateLimiter {
   public refillsPerMin: number;
   public keyMap: Map<string, KeyData>;
   public static readonly GC_TOLERANCE: number = 50;
-  private sweeper: NodeJS.Timer;
+  private sweeper: NodeJS.Timeout;
 
   constructor(capacity: number, refillsPerMin: number) {
     this.capacity = capacity;
