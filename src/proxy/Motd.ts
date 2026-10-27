@@ -45,7 +45,7 @@ export namespace Motd {
               online: newPingRes.players.online,
               players: newPingRes.players.sample != null ? newPingRes.players.sample.map((v) => v.name) : [],
             },
-            name: "placeholder name",
+            name: `${host}:${port}`,
             secure: false,
             time: Date.now(),
             type: "motd",

@@ -124,19 +124,21 @@ if (config.allowDirectConnectEndpoints) {
     if (config.allowDirectConnectEndpoints) {
       PluginManager.proxy.config.motd = "REALTIME";
       PluginManager.proxy.on("fetchMotd", (ws, req, result) => {
-        let url = new URL(req.url, "https://bogus.lol"),
-          ip = url.searchParams.get("ip"),
-          port = url.searchParams.get("port");
-        port = port || "25565";
-        if (!config.allowCustomPorts && port != "25565") return;
+        const url = new URL(req.url, "https://bogus.lol");
+        const requestedIp = url.searchParams.get("ip");
+        const ip = requestedIp ?? config.defaultServer.host;
+        const port = url.searchParams.get("port") ?? (requestedIp == null ? String(config.defaultServer.port) : "25565");
+        if (!config.allowCustomPorts && url.searchParams.has("port") && port != "25565") return;
         if (ip != null && !isNaN(Number(port))) {
-          // check if ip is public
-          result.motd = new Promise(async (res) => {
-            if (await isValidIp(ip)) {
-              res(await Motd.MOTD.generateMOTDFromPing(ip, Number(port), PluginManager.proxy.config.useNatives || true));
+          result.motd = (async () => {
+            if (!(await isValidIp(ip))) return null;
+            try {
+              return await Motd.MOTD.generateMOTDFromPing(ip, Number(port), PluginManager.proxy.config.useNatives ?? true);
+            } catch (err) {
+              logger.warn(`Unable to fetch MOTD from ${ip}:${port}: ${err.stack ?? err}`);
+              return null;
             }
-            res(null);
-          });
+          })();
         }
       });
     }
