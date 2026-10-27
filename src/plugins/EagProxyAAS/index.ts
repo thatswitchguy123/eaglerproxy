@@ -45,8 +45,9 @@ server.on("login", async (client) => {
   const proxyPlayer = PluginManager.proxy.players.get(client.username);
   if (proxyPlayer != null) {
     const url = new URL(proxyPlayer.ws.httpRequest.url, `http${PluginManager.proxy.config.tls?.enabled ? "s" : ""}://${proxyPlayer.ws.httpRequest.headers.host}`);
-    let host = url.searchParams.get("ip"),
-      port = url.searchParams.get("port"),
+    const requestedHost = url.searchParams.get("ip");
+    let host = requestedHost ?? config.defaultServer.host,
+      port = url.searchParams.get("port") ?? (requestedHost == null ? String(config.defaultServer.port) : null),
       type = url.searchParams.get("authType") as any;
     let params: {
       ip: string;
@@ -54,8 +55,8 @@ server.on("login", async (client) => {
       mode: ConnectType;
       session: any | null;
     } = undefined;
-    if (host != undefined && url.searchParams.size > 0) {
-      if (!config.allowDirectConnectEndpoints) {
+    if (host != undefined) {
+      if (requestedHost != null && !config.allowDirectConnectEndpoints) {
         return proxyPlayer.disconnect(Enums.ChatColor.RED + "Direct connect endpoints are disabled");
       }
       if (config.disallowHypixel && /^(?:[\w-]+\.)?hypixel\.net$/.test(host)) {
