@@ -2,56 +2,68 @@ import { Enums } from "./Enums.js";
 
 export namespace Chat {
   export type ChatExtra = {
-    text: string;
+    text?: unknown;
     bold?: boolean;
     italic?: boolean;
     underlined?: boolean;
     strikethrough?: boolean;
     obfuscated?: boolean;
-    color?: Enums.ChatColor | "reset";
-  };
-
-  export type Chat = {
-    text?: string;
-    bold?: boolean;
-    italic?: boolean;
-    underlined?: boolean;
-    strikethrough?: boolean;
-    obfuscated?: boolean;
-    color?: Enums.ChatColor | "reset";
+    color?: string;
     extra?: ChatExtra[];
   };
 
-  export function chatToPlainString(chat: Chat): string {
-    let ret = "";
-    if (chat.text != null) ret += chat.text;
-    if (chat.extra != null) {
-      chat.extra.forEach((extra) => {
-        let append = "";
-        if (extra.bold) append += Enums.ChatColor.BOLD;
-        if (extra.italic) append += Enums.ChatColor.ITALIC;
-        if (extra.underlined) append += Enums.ChatColor.UNDERLINED;
-        if (extra.strikethrough) append += Enums.ChatColor.STRIKETHROUGH;
-        if (extra.obfuscated) append += Enums.ChatColor.OBFUSCATED;
-        if (extra.color)
-          append +=
-            extra.color == "reset"
-              ? Enums.ChatColor.RESET
-              : resolveColor(extra.color);
-        append += extra.text;
-        ret += append;
-      });
-    }
-    return ret;
+  export type Chat = string | ChatExtra | ChatExtra[];
+
+  export function chatToPlainString(chat: unknown): string {
+    if (typeof chat === "string") return chat;
+    if (Array.isArray(chat)) return chat.map(chatToPlainString).join("");
+    if (chat == null || typeof chat !== "object") return "";
+
+    const component = chat as Record<string, unknown>;
+    const text = typeof component.text === "string" ? component.text : "";
+    const formatting = resolveFormatting(component);
+    const extra = Array.isArray(component.extra)
+      ? component.extra.map(chatToPlainString).join("")
+      : "";
+
+    return formatting + text + extra;
   }
 
-  const ccValues = Object.values(Enums.ChatColor);
-  const ccKeys = Object.keys(Enums.ChatColor).map((str) => str.toLowerCase());
+  const colorCodes: Record<string, string> = {
+    black: Enums.ChatColor.BLACK,
+    dark_blue: Enums.ChatColor.DARK_BLUE,
+    dark_green: Enums.ChatColor.DARK_GREEN,
+    dark_aqua: Enums.ChatColor.DARK_CYAN,
+    dark_cyan: Enums.ChatColor.DARK_CYAN,
+    dark_red: Enums.ChatColor.DARK_RED,
+    dark_purple: Enums.ChatColor.PURPLE,
+    purple: Enums.ChatColor.PURPLE,
+    gold: Enums.ChatColor.GOLD,
+    gray: Enums.ChatColor.GRAY,
+    dark_gray: Enums.ChatColor.DARK_GRAY,
+    blue: Enums.ChatColor.BLUE,
+    green: Enums.ChatColor.GREEN,
+    aqua: Enums.ChatColor.AQUA,
+    cyan: Enums.ChatColor.AQUA,
+    red: Enums.ChatColor.RED,
+    light_purple: Enums.ChatColor.LIGHT_PURPLE,
+    pink: Enums.ChatColor.LIGHT_PURPLE,
+    yellow: Enums.ChatColor.YELLOW,
+    white: Enums.ChatColor.WHITE,
+    reset: Enums.ChatColor.RESET,
+  };
 
-  function resolveColor(colorStr: string) {
-    return (
-      Object.values(Enums.ChatColor)[ccKeys.indexOf(colorStr.toLowerCase())] ??
-      colorStr
-    );
+  function resolveFormatting(component: Record<string, unknown>): string {
+    let formatting = "";
+    if (typeof component.color === "string") {
+      const color = component.color.toLowerCase().replace(/[\s-]+/g, "_");
+      formatting += colorCodes[color] ?? "";
+    }
+    if (component.obfuscated === true) formatting += Enums.ChatColor.OBFUSCATED;
+    if (component.bold === true) formatting += Enums.ChatColor.BOLD;
+    if (component.strikethrough === true) formatting += Enums.ChatColor.STRIKETHROUGH;
+    if (component.underlined === true) formatting += Enums.ChatColor.UNDERLINED;
+    if (component.italic === true) formatting += Enums.ChatColor.ITALIC;
+    return formatting;
   }
 }

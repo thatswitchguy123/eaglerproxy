@@ -25,6 +25,13 @@ export namespace Motd {
       else {
         const newPingRes = pingRes as NewPingResult;
         let image: Buffer;
+        const description = Chat.chatToPlainString(newPingRes.description);
+        const motdLines = description.split(/\r?\n/, 2);
+        const samplePlayers = Array.isArray(newPingRes.players?.sample)
+          ? newPingRes.players.sample
+              .filter((player) => typeof player?.name === "string")
+              .map((player) => player.name)
+          : [];
 
         if (newPingRes.favicon != null) {
           if (!newPingRes.favicon.startsWith(Constants.IMAGE_DATA_PREPEND)) throw new Error("Invalid MOTD image!");
@@ -40,10 +47,10 @@ export namespace Motd {
             data: {
               cache: true,
               icon: newPingRes.favicon != null ? true : false,
-              max: newPingRes.players.max,
-              motd: [typeof newPingRes.description == "string" ? newPingRes.description : Chat.chatToPlainString(newPingRes.description), ""],
-              online: newPingRes.players.online,
-              players: newPingRes.players.sample != null ? newPingRes.players.sample.map((v) => v.name) : [],
+              max: Number.isFinite(newPingRes.players?.max) ? newPingRes.players.max : 0,
+              motd: [motdLines[0] ?? "", motdLines[1] ?? ""],
+              online: Number.isFinite(newPingRes.players?.online) ? newPingRes.players.online : 0,
+              players: samplePlayers,
             },
             name: `${host}:${port}`,
             secure: false,
