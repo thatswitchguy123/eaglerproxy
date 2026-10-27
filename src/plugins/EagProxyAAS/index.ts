@@ -48,7 +48,7 @@ server.on("login", async (client) => {
     const requestedHost = url.searchParams.get("ip");
     let host = requestedHost ?? config.defaultServer.host,
       port = url.searchParams.get("port") ?? (requestedHost == null ? String(config.defaultServer.port) : null),
-      type = url.searchParams.get("authType") as any;
+      type = (url.searchParams.get("authType") ?? config.defaultAuthType) as any;
     let params: {
       ip: string;
       port: number;

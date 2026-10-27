@@ -5,6 +5,7 @@ export const config = {
     host: "sigmacraft4.aternos.me",
     port: 35228,
   },
+  defaultAuthType: "OFFLINE",
   allowCustomPorts: true,
   allowDirectConnectEndpoints: true,
   disallowHypixel: false,
